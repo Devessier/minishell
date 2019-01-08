@@ -6,12 +6,12 @@
 #    By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/06 16:01:17 by bdevessi          #+#    #+#              #
-#    Updated: 2019/01/07 13:54:45 by bdevessi         ###   ########.fr        #
+#    Updated: 2019/01/08 09:52:17 by bdevessi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
-CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes
+CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes -g
 CC = gcc
 
 include src.mk
