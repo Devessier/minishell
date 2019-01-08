@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:15:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 16:11:08 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/08 20:20:05 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ t_command		parser(char *input, char **env);
 void			exec_process(t_command *cmd);
 void			exec_builtin(t_command *cmd);
 void			builtin_runner(char *cmd, char **argv);
+t_map			*init_env_map(char **envp);
 extern char		*builtins[];
 extern pid_t	child_pid;
 

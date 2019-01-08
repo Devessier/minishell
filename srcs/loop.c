@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:37:45 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 15:54:39 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/08 21:55:45 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,15 @@ void	sh_signals(void)
 
 int		sh_loop(int argc, char **argv, char **env)
 {
-	char	*input;
-	int		status;
+	const t_map	*envp_map = init_env_map(env);
+	char		*input;
+	int			status;
 
+	int i = 0;
+	while (envp_map->entries[i])
+		puts(envp_map->entries[i++]);
 	input = NULL;
-	(void)argc, (void)argv, (void)env;
+	(void)argc, (void)argv;
 	while (1)
 	{
 		ft_putf(JOY "  > ");
@@ -61,5 +65,6 @@ int		sh_loop(int argc, char **argv, char **env)
 		}
 		else if (status == 0)
 			builtin_runner("exit", NULL);
+		free(input);
 	}
 }
