@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 17:12:50 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 12:18:52 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/08 16:01:41 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,18 +38,34 @@ bool	is_builtin(char *cmd)
 	return (false);
 }
 
-void	builtin_runner(char *cmd)
+void	builtin_runner(char *cmd, char **argv)
 {
+	static char	path[PATH_MAX];
+
 	if (ft_strcmp(cmd, "exit") == 0)
 	{
 		ft_putf("exit\n");
 		exit(0);
 	}
+	else if (ft_strcmp(cmd, "cd") == 0)
+	{
+		if (getcwd(path, sizeof(path)) == NULL)
+			ft_putf("error\n");
+		printf("path = %s, sizeof = %zu\n", path, sizeof(path));
+		printf("second = %p\n", argv[1]);
+		if (argv[1] == NULL)
+		{
+			if (chdir(path) == -1)
+				ft_putf("error\n");
+		}
+		else
+			chdir(argv[1]);
+	}
 }
 
 void	exec_builtin(t_command *cmd)
 {
-	builtin_runner(cmd->path);
+	builtin_runner(cmd->path, cmd->argv);
 }
 
 void	exec_process(t_command *cmd)
@@ -58,18 +74,12 @@ void	exec_process(t_command *cmd)
 
 	child_pid = fork();
 	if (child_pid == -1)
-	{
 		ft_putf("Error during forking\n");	
-		perror("sh: ");
-	}
 	else if (child_pid == 0)
 	{
-		char	*array[] = { cmd->path, NULL };
-		if (execve(cmd->path, array, cmd->env) == -1)
+		if (execve(cmd->path, cmd->argv, cmd->env) == -1)
 			ft_putf("Error during child execution\n");
 	}
 	else
-	{
 		waitpid(child_pid, &status, 0);
-	}
 }

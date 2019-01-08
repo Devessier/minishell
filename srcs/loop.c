@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:37:45 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 12:24:59 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/08 15:54:39 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,21 +46,20 @@ int		sh_loop(int argc, char **argv, char **env)
 
 	input = NULL;
 	(void)argc, (void)argv, (void)env;
-	ft_putf(JOY "  > ");
 	while (1)
 	{
+		ft_putf(JOY "  > ");
 		if ((status = reader(&input)) > 0)
 		{
 			t_command cmd = parser(input, env);
 			if (!cmd.found)
-				ft_putf("%s: command not found\n", cmd.path);
+				ft_putf("joysh \\o/ : %s: command not found\n", cmd.path);
 			else if (!cmd.is_builtin)
 				exec_process(&cmd);
 			else
 				exec_builtin(&cmd);
-			ft_putf(JOY "  > ");
 		}
 		else if (status == 0)
-			builtin_runner("exit");
+			builtin_runner("exit", NULL);
 	}
 }

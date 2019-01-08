@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:15:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 12:18:04 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/08 16:11:08 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,14 @@ typedef	struct	s_command
 	bool	found;
 	bool	is_builtin;
 	char	args[ARG_MAX];
+	char	**argv;
 }				t_command;
+
+typedef struct	s_map
+{
+	size_t	len;
+	char	*entries[];
+}				t_map;
 
 int				reader(char **input);
 void			sh_signals(void);
@@ -41,7 +48,7 @@ bool			is_builtin(char *cmd);
 t_command		parser(char *input, char **env);
 void			exec_process(t_command *cmd);
 void			exec_builtin(t_command *cmd);
-void			builtin_runner(char *cmd);
+void			builtin_runner(char *cmd, char **argv);
 extern char		*builtins[];
 extern pid_t	child_pid;
 
