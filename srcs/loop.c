@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:37:45 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 21:55:45 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/09 16:50:15 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,17 @@ int		sh_loop(int argc, char **argv, char **env)
 	char		*input;
 	int			status;
 
-	int i = 0;
-	while (envp_map->entries[i])
-		puts(envp_map->entries[i++]);
-	input = NULL;
+	if (envp_map == NULL)
+		return (1);
+    input = NULL;
+	puts(get_env(envp_map, "HOME"));
 	(void)argc, (void)argv;
 	while (1)
 	{
 		ft_putf(JOY "  > ");
 		if ((status = reader(&input)) > 0)
 		{
-			t_command cmd = parser(input, env);
+			t_command cmd = parser(input, envp_map);
 			if (!cmd.found)
 				ft_putf("joysh \\o/ : %s: command not found\n", cmd.path);
 			else if (!cmd.is_builtin)

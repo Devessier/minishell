@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 15:45:46 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 15:44:51 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/09 17:39:36 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,8 @@ void	lookup_path(t_command *cmd, char *usr_path)
 	char	path[PATH_MAX];
 	char	*colon;
 
-	if (!cmd)
-		return ;
-	if (cmd->is_builtin || usr_path == NULL || *usr_path == '\0')
+	if (!cmd || cmd->is_builtin || usr_path == NULL
+			|| *usr_path == '\0' || ft_strchr(cmd->path, '/') != NULL)
 		return ;
 	ft_strcpy(path, cmd->path);
 	while (*usr_path)
@@ -55,7 +54,7 @@ size_t	count_blank(char *str)
 	return (count);
 }
 
-char	*clean_input(char *str)
+void		clean_input(char *str)
 {
 	const size_t    len = ft_strlen(str);
 	char            last_char;
@@ -79,7 +78,6 @@ char	*clean_input(char *str)
 		else
 			last_char = str[i++];
 	}
-	return (str);
 }
 
 uint8_t		fill_argv(t_command *cmd, size_t blanks)
@@ -88,7 +86,7 @@ uint8_t		fill_argv(t_command *cmd, size_t blanks)
 	int		i;
 	int		j;
 
-	if (!(cmd->argv = malloc(sizeof(char **) * (blanks + 2))))
+	if (!(cmd->argv = malloc(sizeof(char *) * (blanks + 2))))
 		return (1);
 	cmd->argv[blanks + 1] = NULL;
 	i = 0;
@@ -104,15 +102,50 @@ uint8_t		fill_argv(t_command *cmd, size_t blanks)
 	return (0);
 }
 
-t_command	parser(char *input, char **env)
+void		expansions(t_command *cmd, const t_map *envp_map)
+{
+	const char	*home = get_env(envp_map, "HOME");
+	size_t		i;
+
+	i = 0;
+	while (cmd->argv[++i])
+	{
+		if (*cmd->argv[i] == '~')
+			cmd->argv[i] = (char *)home;
+		else if (*cmd->argv[i] == '$' && cmd->argv[i][1] != '\0')
+			cmd->argv[i] = get_env(envp_map, cmd->argv[i] + 1);
+	}
+}
+
+t_map		*handle_env(t_command *cmd, const t_map *envp_map)
+{
+	t_map	*tmp_env_map;
+	size_t	i;
+
+	if (ft_strcmp(cmd->path, "env") != 0
+			|| !(tmp_env_map = copy_env_map(envp_map)))
+		return ((t_map *)envp_map);
+	i = 0;
+	while (cmd->argv[++i]
+			&& ft_strchr(cmd->argv[i], '=') != NULL)
+		tmp_env_map = set_env(tmp_env_map, cmd->argv[i]);
+	if (cmd->argv[i] != NULL)
+	{
+		cmd->argv = cmd->argv + i;
+		ft_strcpy(cmd->path, *cmd->argv);
+	}
+	return (tmp_env_map);
+}
+
+t_command	parser(char *input, const t_map *envp_map)
 {
 	t_command	command;
 	size_t		blanks;
 	char		*colon;
 
-	command = (t_command) { .env = env, .found = true, .is_builtin = false };
+	command = (t_command) { .found = true, .is_builtin = false };
 	ft_bzero(command.path, PATH_MAX);
-	input = clean_input(input);
+	clean_input(input);
 	ft_strcpy(command.args, input);
 	blanks = count_blank(input);
 	if ((colon = ft_strchr(input, ' ')) == NULL)
@@ -121,8 +154,9 @@ t_command	parser(char *input, char **env)
 		ft_memcpy(command.path, input, colon - input);
 	if (fill_argv(&command, blanks) != 0)
 		return (command);
+	expansions(&command, envp_map);
+	command.env = handle_env(&command, envp_map);
 	command.is_builtin = is_builtin(command.path);
-	char		*usr_path = "/Users/bdevessi/.nvm/versions/node/v11.2.0/bin:/Users/bdevessi/.brew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Applications/VMware Fusion.app/Contents/Public:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/munki:/Applications/Wireshark.app/Contents/MacOS";
-	lookup_path(&command, usr_path);
+	lookup_path(&command, get_env(envp_map, "PATH"));
 	return (command);
 }

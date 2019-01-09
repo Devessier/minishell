@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 17:12:50 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/08 16:01:41 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/09 13:19:53 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,8 @@ void	exec_process(t_command *cmd)
 		ft_putf("Error during forking\n");	
 	else if (child_pid == 0)
 	{
-		if (execve(cmd->path, cmd->argv, cmd->env) == -1)
+        print_env(cmd->env);
+		if (execve(cmd->path, cmd->argv, cmd->env->entries) == -1)
 			ft_putf("Error during child execution\n");
 	}
 	else
