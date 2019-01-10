@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 17:12:50 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/09 13:19:53 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/10 13:00:57 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,12 +72,18 @@ void	exec_process(t_command *cmd)
 {
 	int			status;
 
+	int i = 0;
+	while (cmd->argv[i++])
+		ft_putf("argv[%d] = %s\n", i - 1, cmd->argv[i - 1]);
 	child_pid = fork();
 	if (child_pid == -1)
 		ft_putf("Error during forking\n");	
 	else if (child_pid == 0)
 	{
-        print_env(cmd->env);
+		ft_putf("first printing\n");
+		print_env(cmd->env);
+		ft_putf("second printing\n");
+		print_env(cmd->env);
 		if (execve(cmd->path, cmd->argv, cmd->env->entries) == -1)
 			ft_putf("Error during child execution\n");
 	}

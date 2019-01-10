@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:37:45 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/09 16:50:15 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/10 13:03:46 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,9 @@ void	sh_signals(void)
 
 int		sh_loop(int argc, char **argv, char **env)
 {
+	(void)argc, (void)argv;
 	const t_map	*envp_map = init_env_map(env);
+	t_command	cmd;
 	char		*input;
 	int			status;
 
@@ -49,22 +51,24 @@ int		sh_loop(int argc, char **argv, char **env)
 		return (1);
     input = NULL;
 	puts(get_env(envp_map, "HOME"));
-	(void)argc, (void)argv;
-	while (1)
+	while (42)
 	{
 		ft_putf(JOY "  > ");
 		if ((status = reader(&input)) > 0)
 		{
-			t_command cmd = parser(input, envp_map);
+			cmd = parser(input, envp_map);
 			if (!cmd.found)
 				ft_putf("joysh \\o/ : %s: command not found\n", cmd.path);
 			else if (!cmd.is_builtin)
 				exec_process(&cmd);
 			else
 				exec_builtin(&cmd);
+			printf("%p == %p\n", cmd.env, envp_map);
+			if (cmd.env != envp_map)
+				free(cmd.env);
 		}
-		else if (status == 0)
+		else if (status <= 0)
 			builtin_runner("exit", NULL);
-		free(input);
+		printf("input = |%p|\n", input);
 	}
 }

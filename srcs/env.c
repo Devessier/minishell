@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 16:10:47 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/09 17:46:50 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/10 13:25:05 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,28 +69,28 @@ char	*new_map_entry(char *key, char *value)
 	return (tmp);
 }
 
-t_map	*append_env_var(t_map *map, char *key, char *value)
+int		append_env_var(t_map **map, char *key, char *value)
 {
 	t_map	*tmp;
 	char	*new_entry;
 	size_t	i;
 
-	if (!(tmp = malloc(sizeof(t_map) + sizeof(char *) * (map->len + 2))))
-		return (NULL);
-	tmp->len = map->len + 1;
+	if (!(tmp = malloc(sizeof(t_map) + sizeof(char *) * ((*map)->len + 2))))
+		return (-1);
+	tmp->len = (*map)->len + 1;
 	i = 0;
 	tmp->entries[tmp->len] = NULL;
-	while (i < map->len && map->entries[i++])
-		tmp->entries[i - 1] = map->entries[i - 1];
+	while (i < (*map)->len && (*map)->entries[i++])
+		tmp->entries[i - 1] = (*map)->entries[i - 1];
 	if (!(new_entry = new_map_entry(key, value)))
     {
-        ft_putstr("exit\n");
         free(tmp);
-        return (NULL);
+        return (-1);
     }
-    ft_putf("new entry = |%s|\n", new_entry);
+	free(*map);
 	tmp->entries[tmp->len - 1] = new_entry;
-	return (tmp);
+	*map = tmp;
+	return (0);
 }
 
 char	*generate_env_var(char *entry, char *value, size_t new_val_len)
@@ -116,7 +116,7 @@ void	replace_env_var(char *entry, char *value)
 	ft_strcpy(entry, value);
 }
 
-t_map	*set_env_var(t_map *env_map, const char *name, const char *value)
+int		set_env_var(t_map **env_map, const char *name, const char *value)
 {
 	const size_t	value_len = ft_strlen(value);
 	size_t			i;
@@ -128,25 +128,27 @@ t_map	*set_env_var(t_map *env_map, const char *name, const char *value)
 	i = 0;
     was_found = false;
 	if (!(name && value))
-		return (env_map);
-	while (i < env_map->len && (tmp = env_map->entries[i++]))
+		return (0);
+	while (i < (*env_map)->len && (tmp = (*env_map)->entries[i++]))
 		if ((found = ft_strstr(tmp, name)) == tmp)
 		{
             was_found = true;
 			equal = ft_strchr(tmp, '=');
-			printf("equal = %p\n", equal);
+			printf("equal = %p, i = %zu\n", equal, i);
 			if (equal && ft_strlen(tmp + (equal - tmp + 1)) < value_len)
 			{
-				free(env_map->entries[i - 1]);
-				env_map->entries[i - 1] = generate_env_var(tmp, (char *)value, value_len);
+				free((*env_map)->entries[i - 1]);
+				(*env_map)->entries[i - 1] = generate_env_var(tmp, (char *)value, value_len);
 			}
 			else
 				replace_env_var(tmp, (char *)value);
 		}
-	return (was_found ? env_map : append_env_var(env_map, (char *)name, (char *)value));
+	if (!was_found)
+		append_env_var(env_map, (char *)name, (char *)value);
+	return (0);
 }
 
-t_map	*set_env(t_map *env_map, const char *arg)
+int		set_env(t_map **env_map, const char *arg)
 {
 	char		buffer[PATH_MAX];
 	const char	*equal = ft_strchr(arg, '=');
@@ -161,7 +163,7 @@ t_map	*set_env(t_map *env_map, const char *arg)
 		ft_strncat(buffer, arg, equal - arg);
 		return (set_env_var(env_map, buffer, equal + 1));
 	}
-	return (env_map);
+	return (0);
 }
 
 char	*get_env(const t_map *envp_map, const char *key)
@@ -184,6 +186,7 @@ void	print_env(const t_map *envp_map)
 	size_t	i;
 
 	i = 0;
-	while (i < envp_map->len && envp_map->entries[i])
-		ft_putf("%s\n", envp_map->entries[i++]);
+	while (i < envp_map->len && envp_map->entries[i++])
+		printf("[%lu] %s\n", i - 1, envp_map->entries[i - 1]);
+	printf("end\n");
 }

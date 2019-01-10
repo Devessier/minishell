@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/07 13:15:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/01/09 17:36:45 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/01/10 12:21:02 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef	struct	s_command
 	char		path[PATH_MAX];
 	char		args[ARG_MAX];
 	char		**argv;
+	size_t		argc;
 	t_map		*env;
 }				t_command;
 
@@ -52,7 +53,7 @@ void			builtin_runner(char *cmd, char **argv);
 t_map			*init_env_map(char **envp);
 t_map			*copy_env_map(const t_map *old_env_map);
 char			*get_env(const t_map *envp_map, const char *key);
-t_map			*set_env(t_map *env_map, const char *arg);
+int				set_env(t_map **env_map, const char *arg);
 void			print_env(const t_map *env_map);
 extern char		*builtins[];
 extern pid_t	child_pid;
